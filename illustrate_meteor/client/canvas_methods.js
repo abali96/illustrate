@@ -10,7 +10,7 @@ Meteor.canvasMethods = {
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
             if (doc.data != {})
-                Meteor.canvasMethods.addSVG(doc.data);
+                Meteor.canvasMethods.injectSVG(doc.data);
         });
     },
     setToolActions : function(path, tool, group) {
@@ -30,17 +30,16 @@ Meteor.canvasMethods = {
           var path_svg = path.exportSVG({asString:true});
           SVGs.insert({data : path_svg});
           Meteor.canvasMethods.eraseCanvas();
-          Meteor.canvasMethods.renderSVG();
         };
     },
     eraseCanvas : function() {
         paper.project._activeLayer.removeChildren();
     },
-    addSVG : function(path) {
+    injectSVG : function(path) {
         var svg = $('svg')[0]; // Get svg element from DOM.
         var container_div = document.createElementNS("http://www.w3.org/2000/svg", 'path');
         container_div.innerHTML = path;
         var elements = container_div.childNodes;
-        svg.appendChild(elements[0]); // Add the path.
-    }
+        svg.appendChild(elements[0]);
+    },
 };

@@ -1,20 +1,16 @@
 <head>
-  <title>illustrate</title>
+	<title>illustrate</title>
 </head>
 
 <body>
-  {{> canvas}}
+	{{> svg }}
+	{{> canvas}}
 </body>
 
 <template name="canvas">
-	<svg></svg>
 	<canvas id="canvas" resize></canvas>
 </template>
 
-<template name='svg_object'>
-	{{{data}}}
-</template>
-
-<template name='svg_string'>
-	{{data}}
+<template name='svg'>
+	<svg></svg>
 </template>
