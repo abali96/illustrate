@@ -1,0 +1,1 @@
+SVG = new Mongo.Collection('svg');
