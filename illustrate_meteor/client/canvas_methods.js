@@ -29,7 +29,7 @@ Meteor.canvasMethods = {
           path.simplify();
           var path_svg = path.exportSVG({asString:true});
           SVGs.insert({data : path_svg});
-          Meteor.canvasMethods.eraseCanvas();
+          // Meteor.canvasMethods.eraseCanvas();
         };
     },
     eraseCanvas : function() {
@@ -43,3 +43,4 @@ Meteor.canvasMethods = {
         svg.appendChild(elements[0]);
     },
 };
+
