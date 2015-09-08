@@ -8,38 +8,39 @@ Meteor.canvasMethods = {
         Meteor.canvasMethods.setToolActions(path, tool, group);
     },
     renderSVG : function() {
-        svg = $('#svg');
-        exported_svg = paper.project.exportSVG();
-        svg = exported_svg;
-        console.log(exported_svg);
-        Meteor.canvasMethods.eraseCanvas();
+        SVGs.find().forEach(function (doc) {
+            if (doc.data != {})
+                Meteor.canvasMethods.addSVG(doc.data);
+        });
     },
     setToolActions : function(path, tool, group) {
         tool.onMouseDown = function(event) {
           path = new paper.Path();
           path.strokeColor = 'black';
           path.add(event.point);
-          line_id = Lines.insert({createdAt: new Date()});
-          Lines.update(
-            {_id: line_id},
-            {$push : {points: [event.point.x, event.point.y]}}
-          );
-          console.log(Lines.find(line_id));
         };
 
         tool.onMouseDrag = function(event) {
           path.add(event.point);
-          Lines.update({_id: line_id}, {$push : {points: [event.point.x, event.point.y]}});
         };
 
         tool.onMouseUp = function(event) {
           path.smooth();
           path.simplify();
-          group.addChild(path);
+          var path_svg = path.exportSVG({asString:true});
+          SVGs.insert({data : path_svg});
+          Meteor.canvasMethods.eraseCanvas();
           Meteor.canvasMethods.renderSVG();
         };
     },
-    eraseCanvas : function(group) {
+    eraseCanvas : function() {
         paper.project._activeLayer.removeChildren();
+    },
+    addSVG : function(path) {
+        var svg = $('svg')[0]; // Get svg element from DOM.
+        var container_div = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        container_div.innerHTML = path;
+        var elements = container_div.childNodes;
+        svg.appendChild(elements[0]); // Add the path.
     }
 };
