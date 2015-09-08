@@ -1,0 +1,14 @@
+<head>
+  <title>illustrate</title>
+</head>
+
+<body>
+  {{> canvas}}
+</body>
+
+<template name="canvas">
+	<canvas id="canvas" resize></canvas>
+	{{#each lines}}
+		{{generateLines}}
+	{{/each}}
+</template>
