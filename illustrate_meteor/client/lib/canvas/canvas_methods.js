@@ -9,7 +9,8 @@ Meteor.canvasMethods = {
         Session.setDefault(ToolModifierConstants.StrokeDashGap, 0);
     },
     calculatePoint : function(event, path) {
-        if (Session.get('straight_modifier') && path._segments.length) {
+        console.log(Session.get(CanvasConstants.StraightLineModifier), path._segments.length);
+        if (Session.get(CanvasConstants.StraightLineModifier) && path._segments.length) {
             var prev_x = path._segments[path._segments.length - 1]._point._x,
                 prev_y = path._segments[path._segments.length - 1]._point._y;
             if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
@@ -42,7 +43,7 @@ Meteor.canvasMethods = {
         unmountTool = function(event) {
             var path_svg = path.exportSVG({asString:true});
             SVGs.insert({data : path_svg});
-            path = undefined;
+            path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
         };
         line_string_tool.onMouseDown = function (event) {
             if (path === undefined) {

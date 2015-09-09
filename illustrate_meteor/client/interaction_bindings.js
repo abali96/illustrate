@@ -1,9 +1,9 @@
 Mousetrap.bind('shift', function(e) {
-    Session.set('straight_modifier', true);
+    Session.set(CanvasConstants.StraightLineModifier, true);
 }, "keydown");
 
 Mousetrap.bind('shift', function(e) {
-    Session.set('straight_modifier', false);
+    Session.set(CanvasConstants.StraightLineModifier, false);
 }, "keyup");
 
 Mousetrap.bind('mod+s', function(e) {
