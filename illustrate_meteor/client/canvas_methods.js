@@ -21,7 +21,7 @@ Meteor.canvasMethods = {
             console.log(path);
             if (path === undefined) {
                 path = new paper.Path();
-                path.strokeColor = 'black';
+                path.strokeColor = Session.get('currentColour');
                 path.add(event.point);
             } else {
                 path.add(event.point);
@@ -34,7 +34,7 @@ Meteor.canvasMethods = {
         scribble_tool = new paper.Tool();
         scribble_tool.onMouseDown = function onMouseDown(event) {
             path = new paper.Path();
-            path.strokeColor = 'black';
+            path.strokeColor = Session.get('currentColour');
             path.add(event.point);
         };
         scribble_tool.onMouseDrag = function(event) {

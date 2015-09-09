@@ -9,7 +9,13 @@
 
 <template name="tool_selector">
 	{{#each tools}}
-		<a class="tool_selector" id={{id}}>{{name}}</a><br/>
+		{{#if button}}
+			<a class="tool_selector" id={{id}}>{{name}}</a><br/>
+		{{else}}
+			<form class="colour_selector">
+				{{name}}: <input type="text" id={{id}} name="colour"> 
+			</form>
+		{{/if}}
 	{{/each}}
 </template>
 
