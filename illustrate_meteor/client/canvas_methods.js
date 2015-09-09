@@ -35,11 +35,11 @@ Meteor.canvasMethods = {
             path = undefined;
         };
         line_string_tool.onMouseDown = function (event) {
-            console.log(path);
             if (path === undefined) {
                 path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
                 path.add(event.point);
             } else {
+                console.log(Session.get('straight_modifier'));
                 if (Session.get('straight_modifier')) {
                     var prev_x = path._segments[path._segments.length - 1]._point._x;
                     var prev_y = path._segments[path._segments.length - 1]._point._y;
@@ -56,7 +56,18 @@ Meteor.canvasMethods = {
         line_string_tool.onMouseMove = function (event) {
             if (path._segments.length > 1) {
                 path.removeSegment(path._segments.length - 1);
-                path.add(event.point);
+                if (Session.get('straight_modifier')) {
+                    var prev_x = path._segments[path._segments.length - 1]._point._x;
+                    var prev_y = path._segments[path._segments.length - 1]._point._y;
+                    if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
+                        path.add(prev_x, event.point.y);
+                    } else {
+                        path.add(event.point.x, prev_y);
+                    }
+                } else {
+                    path.add(event.point);    
+                }
+                
             } else {
                 path.add(event.point);
             }
