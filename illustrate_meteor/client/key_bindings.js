@@ -1,10 +1,9 @@
 Mousetrap.bind('shift', function(e) {
-    console.log("Shift pressed down.");
-    this.current_tool = SplineTool.setToolActions(path, tool, group);
-}, "keypress");
+    Session.set('straight_modifier', true);
+}, "keydown");
+
 Mousetrap.bind('shift', function(e) {
-    console.log("Shift pressed down.");
-    this.current_tool = SplineTool.setToolActions(path, tool, group);
+    Session.set('straight_modifier', false);
 }, "keyup");
 
 Mousetrap.bind('mod+s', function(e) {

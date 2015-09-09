@@ -25,13 +25,20 @@ Meteor.canvasMethods = {
                 path.strokeColor = Session.get('currentColour');
                 path.add(event.point);
             } else {
-                path.add(event.point);
+                if (Session.get('straight_modifier')) {
+                    var prev_x = path._segments[path._segments.length - 1]._point._x;
+                    var prev_y = path._segments[path._segments.length - 1]._point._y;
+                    if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
+                        path.add(prev_x, event.point.y);
+                    } else {
+                        path.add(event.point.x, prev_y);
+                    }
+                } else {
+                    path.add(event.point);
+                }
+                
             }
         };
-        Mousetrap.bind('esc', function(e) {
-            Meteor.toolMethods.saveAsSVG(path);
-            path = undefined;
-        });
 
         scribble_tool = new paper.Tool();
         scribble_tool.onMouseDown = function onMouseDown(event) {
@@ -43,9 +50,13 @@ Meteor.canvasMethods = {
             path.add(event.point);
         };
         scribble_tool.onMouseUp = function(event) {
-            Meteor.toolMethods.saveAsSVG(path);
+            unmountTool();
             path = undefined;
         };
+        Mousetrap.bind('esc', function(e) {
+            unmountTool();
+            path = undefined;
+        });
     },
     setCurrentTool : function(tool_type) {
         switch(tool_type) {

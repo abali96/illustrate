@@ -3,7 +3,7 @@ Template.tool_selector.helpers({
 		tools = [
 			{name: "Colour", id: ToolTypeConstants.SelectColour, button: false},
 			{name: "Scribble Tool", id: ToolTypeConstants.DrawLineString, button: true},
-			{name: "Line Tool", id: ToolTypeConstants.DrawStraightLine, button: true},
+			{name: "Line Tool (hold shift for vertical/horizontal lines)", id: ToolTypeConstants.DrawStraightLine, button: true},
 		];
 		return tools;
 	},
