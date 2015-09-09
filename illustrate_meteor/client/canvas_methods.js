@@ -1,11 +1,7 @@
 Meteor.canvasMethods = {
     renderCanvas : function() {
         paper.setup('canvas');
-        var tool = new paper.Tool();
-        var line_id;
-        var path;
-        var group = new paper.Group();
-        Meteor.canvasMethods.setToolActions(path, tool, group);
+        Meteor.canvasMethods.setToolActions();
     },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
@@ -13,24 +9,51 @@ Meteor.canvasMethods = {
                 Meteor.canvasMethods.injectSVG(doc.data);
         });
     },
-    setToolActions : function(path, tool, group) {
-        tool.onMouseDown = function(event) {
-          path = new paper.Path();
-          path.strokeColor = 'black';
-          path.add(event.point);
+    setToolActions : function() {
+        path = undefined;
+        unmountTool = function(event) {
+            var path_svg = path.exportSVG({asString:true});
+            SVGs.insert({data : path_svg});
+            path = undefined;
         };
+        line_string_tool = new paper.Tool();
+        line_string_tool.onMouseDown = function (event) {
+            console.log(path);
+            if (path === undefined) {
+                path = new paper.Path();
+                path.strokeColor = 'black';
+                path.add(event.point);
+            } else {
+                path.add(event.point);
+            }
+        };
+        Mousetrap.bind('esc', function(e) {
+            unmountTool();
+        });
 
-        tool.onMouseDrag = function(event) {
-          path.add(event.point);
+        scribble_tool = new paper.Tool();
+        scribble_tool.onMouseDown = function onMouseDown(event) {
+            path = new paper.Path();
+            path.strokeColor = 'black';
+            path.add(event.point);
         };
-
-        tool.onMouseUp = function(event) {
-          path.smooth();
-          path.simplify();
-          var path_svg = path.exportSVG({asString:true});
-          SVGs.insert({data : path_svg});
-          // Meteor.canvasMethods.eraseCanvas();
+        scribble_tool.onMouseDrag = function(event) {
+            path.add(event.point);
         };
+        scribble_tool.onMouseUp = unmountTool;
+    },
+    setCurrentTool : function(tool_type) {
+        switch(tool_type) {
+            case ToolTypeConstants.DrawStraightLine:
+                line_string_tool.activate();
+                break;
+            case ToolTypeConstants.Scribble:
+                scribble_tool.activate();
+                break;
+            default:
+                scribble_tool.activate();
+                break;
+        }
     },
     eraseCanvas : function() {
         paper.project._activeLayer.removeChildren();
@@ -43,4 +66,3 @@ Meteor.canvasMethods = {
         svg.appendChild(elements[0]);
     },
 };
-

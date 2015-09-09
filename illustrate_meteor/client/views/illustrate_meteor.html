@@ -3,14 +3,25 @@
 </head>
 
 <body>
-	{{> svg }}
-	{{> canvas}}
+	{{> tool_selector }}
+	{{> canvas_wrapper }}
 </body>
 
-<template name="canvas">
+<template name="tool_selector">
+	{{#each tools}}
+		<a class="tool_selector" id={{id}}>{{name}}</a><br/>
+	{{/each}}
+</template>
+
+<template name="canvas_wrapper">
+	{{> view_canvas }}
+	{{> edit_canvas}}
+</template>
+
+<template name="edit_canvas">
 	<canvas id="canvas" resize></canvas>
 </template>
 
-<template name='svg'>
+<template name='view_canvas'>
 	<svg></svg>
 </template>

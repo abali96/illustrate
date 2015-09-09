@@ -18,3 +18,7 @@ svg {
 	height: 100%;
 	position: absolute;
 }
+
+.tool_selector {
+	cursor: pointer;
+}
