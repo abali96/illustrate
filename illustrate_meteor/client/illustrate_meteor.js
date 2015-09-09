@@ -1,5 +1,8 @@
 Template.edit_canvas.onRendered(function (){
 	Meteor.canvasMethods.renderCanvas();
+	$('canvas').mousemove(function (e) {
+		Session.set('mousePosition', [e.pageX, e.pageY]);
+	});
 });
 
 Template.view_canvas.onRendered(function() {

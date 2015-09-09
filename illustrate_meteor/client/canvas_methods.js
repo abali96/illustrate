@@ -8,6 +8,19 @@ Meteor.canvasMethods = {
         Session.setDefault(ToolModifierConstants.StrokeDashLength, 1);
         Session.setDefault(ToolModifierConstants.StrokeDashGap, 0);
     },
+    calculatePoint : function(event, path) {
+        if (Session.get('straight_modifier') && path._segments.length) {
+            var prev_x = path._segments[path._segments.length - 1]._point._x,
+                prev_y = path._segments[path._segments.length - 1]._point._y;
+            if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
+                return [prev_x, event.point.y];
+            } else {
+                return [event.point.x, prev_y];
+            }
+        } else {
+            return [event.point.x, event.point.y];
+        }
+    },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
             if (doc.data != {})
@@ -20,15 +33,12 @@ Meteor.canvasMethods = {
             strokeWidth: Session.get(ToolModifierConstants.StrokeWidth),
             strokeColor: Session.get(ToolModifierConstants.StrokeColour),
         };
-        console.log(settings_map);
         return settings_map;
     },
     setToolActions : function() {
         path = undefined;
         line_string_tool = new paper.Tool();
         scribble_tool = new paper.Tool();
-
-
         unmountTool = function(event) {
             var path_svg = path.exportSVG({asString:true});
             SVGs.insert({data : path_svg});
@@ -37,39 +47,17 @@ Meteor.canvasMethods = {
         line_string_tool.onMouseDown = function (event) {
             if (path === undefined) {
                 path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
-                path.add(event.point);
+                path.add(Meteor.canvasMethods.calculatePoint(event, path));
             } else {
-                console.log(Session.get('straight_modifier'));
-                if (Session.get('straight_modifier')) {
-                    var prev_x = path._segments[path._segments.length - 1]._point._x;
-                    var prev_y = path._segments[path._segments.length - 1]._point._y;
-                    if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
-                        path.add(prev_x, event.point.y);
-                    } else {
-                        path.add(event.point.x, prev_y);
-                    }
-                } else {
-                    path.add(event.point);
-                }
+                path.add(Meteor.canvasMethods.calculatePoint(event, path));
             }
         };
         line_string_tool.onMouseMove = function (event) {
             if (path._segments.length > 1) {
                 path.removeSegment(path._segments.length - 1);
-                if (Session.get('straight_modifier')) {
-                    var prev_x = path._segments[path._segments.length - 1]._point._x;
-                    var prev_y = path._segments[path._segments.length - 1]._point._y;
-                    if (Math.abs(event.point.x - prev_x) < Math.abs(event.point.y - prev_y)) {
-                        path.add(prev_x, event.point.y);
-                    } else {
-                        path.add(event.point.x, prev_y);
-                    }
-                } else {
-                    path.add(event.point);    
-                }
-                
+                path.add(Meteor.canvasMethods.calculatePoint(event, path));
             } else {
-                path.add(event.point);
+                path.add(Meteor.canvasMethods.calculatePoint(event, path));
             }
         };
 
