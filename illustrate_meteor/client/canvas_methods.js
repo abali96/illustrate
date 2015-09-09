@@ -5,7 +5,7 @@ Meteor.canvasMethods = {
         // Set the default session values.
         Session.setDefault(ToolModifierConstants.StrokeColour, 'black');
         Session.setDefault(ToolModifierConstants.StrokeWidth, 1);
-        Session.setDefault(ToolModifierConstants.StrokeDashLength, 0);
+        Session.setDefault(ToolModifierConstants.StrokeDashLength, 1);
         Session.setDefault(ToolModifierConstants.StrokeDashGap, 0);
     },
     renderSVG : function() {
@@ -37,8 +37,7 @@ Meteor.canvasMethods = {
         line_string_tool.onMouseDown = function (event) {
             console.log(path);
             if (path === undefined) {
-                path = new paper.Path();
-                path.style = Meteor.canvasMethods.collectStyleSettings();
+                path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
                 path.add(event.point);
             } else {
                 if (Session.get('straight_modifier')) {
@@ -54,6 +53,15 @@ Meteor.canvasMethods = {
                 }
             }
         };
+        line_string_tool.onMouseMove = function (event) {
+            if (path._segments.length > 1) {
+                path.removeSegment(path._segments.length - 1);
+                path.add(event.point);
+            } else {
+                path.add(event.point);
+            }
+        };
+
         scribble_tool.onMouseDown = function onMouseDown(event) {
             path = new paper.Path();
             path.style = Meteor.canvasMethods.collectStyleSettings();
