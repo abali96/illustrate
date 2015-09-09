@@ -1,10 +1,12 @@
 <head>
 	<title>illustrate</title>
+	<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
 	{{> tool_selector }}
 	{{> canvas_wrapper }}
+	{{> command_line }}
 </body>
 
 <template name="tool_selector">
@@ -31,4 +33,22 @@
 
 <template name='view_canvas'>
 	<svg></svg>
+</template>
+
+<template name='command_line'>
+	<div id="command_line_wrapper">
+		<div id="command_line_history">
+			{{#each logs}}
+				<p class="log_message">
+					{{#if type}}
+						<span>{{type}}: </span>
+					{{/if}}
+					<span>{{text}}</span>
+				</p>
+			{{/each}}
+		</div>
+		<form id="command_line_form">
+			<input id="command_line" type="text" placeholder="Enter a command.">
+		</form>
+	</div>
 </template>

@@ -1,0 +1,3 @@
+CommandLineConstants = {
+	NewSession: 'Application'
+};

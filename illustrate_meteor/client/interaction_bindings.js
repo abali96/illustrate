@@ -12,3 +12,8 @@ Mousetrap.bind('mod+s', function(e) {
 
 Mousetrap.bind('mod', function(e) {
 });
+
+
+$(document).on('keypress', function(e) {
+	$('#command_line').focus();
+});
