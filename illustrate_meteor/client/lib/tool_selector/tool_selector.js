@@ -1,15 +1,20 @@
 Template.tool_selector.helpers({
 	tools : function() {
 		tools = [
-			{name: "Colour", id: ToolTypeConstants.SelectColour, button: false},
 			{name: "Scribble Tool", id: ToolTypeConstants.DrawLineString, button: true},
 			{name: "Line Tool (hold shift for vertical/horizontal lines)", id: ToolTypeConstants.DrawStraightLine, button: true},
 		];
 		return tools;
 	},
-	currentColour : function() {
-		return Session.get('currentColour')
-	}
+	tool_modifiers : function() {
+		modifiers = [
+			{name: "Colour", id: ToolModifierConstants.StrokeColour, button: false, value: Session.get(ToolModifierConstants.StrokeColour)},
+			{name: "Width (pt)", id: ToolModifierConstants.StrokeWidth, value: Session.get(ToolModifierConstants.StrokeWidth)},
+			{name: "Dash Length (pt)", id: ToolModifierConstants.StrokeDashLength, value: Session.get(ToolModifierConstants.StrokeDashLength)},
+			{name: "Dash Gap (pt)", id: ToolModifierConstants.StrokeDashGap, value: Session.get(ToolModifierConstants.StrokeDashGap)},
+		];
+		return modifiers;
+	},
 });
 
 Template.tool_selector.events({
@@ -17,9 +22,10 @@ Template.tool_selector.events({
 		e.preventDefault();
 		Meteor.canvasMethods.setCurrentTool(e.target.id);
 	},
-	"submit .colour_selector": function(e) {
+	"submit .tool_modifier_selector": function(e) {
 		e.preventDefault();
-		colour = $("#"+ToolTypeConstants.SelectColour)[0].value;
-		Session.set({'currentColour': colour});
+		new_value = $(e.target).find('input')[0].value;
+		console.log("Setting " + e.target.id + " to " + new_value);
+		Session.set(e.target.id, new_value);
 	},
 });

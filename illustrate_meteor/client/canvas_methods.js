@@ -2,7 +2,11 @@ Meteor.canvasMethods = {
     renderCanvas : function() {
         paper.setup('canvas');
         Meteor.canvasMethods.setToolActions();
-        Session.set({'currentColour': 'black'});
+        // Set the default session values.
+        Session.setDefault(ToolModifierConstants.StrokeColour, 'black');
+        Session.setDefault(ToolModifierConstants.StrokeWidth, 1);
+        Session.setDefault(ToolModifierConstants.StrokeDashLength, 0);
+        Session.setDefault(ToolModifierConstants.StrokeDashGap, 0);
     },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
@@ -10,19 +14,31 @@ Meteor.canvasMethods = {
                 Meteor.canvasMethods.injectSVG(doc.data);
         });
     },
+    collectStyleSettings : function() {
+        settings_map = {
+            dashArray: [Session.get(ToolModifierConstants.StrokeDashLength), Session.get(ToolModifierConstants.StrokeDashGap)],
+            strokeWidth: Session.get(ToolModifierConstants.StrokeWidth),
+            strokeColor: Session.get(ToolModifierConstants.StrokeColour),
+        };
+        console.log(settings_map);
+        return settings_map;
+    },
     setToolActions : function() {
         path = undefined;
+        line_string_tool = new paper.Tool();
+        scribble_tool = new paper.Tool();
+
+
         unmountTool = function(event) {
             var path_svg = path.exportSVG({asString:true});
             SVGs.insert({data : path_svg});
             path = undefined;
         };
-        line_string_tool = new paper.Tool();
         line_string_tool.onMouseDown = function (event) {
             console.log(path);
             if (path === undefined) {
                 path = new paper.Path();
-                path.strokeColor = Session.get('currentColour');
+                path.style = Meteor.canvasMethods.collectStyleSettings();
                 path.add(event.point);
             } else {
                 if (Session.get('straight_modifier')) {
@@ -36,14 +52,11 @@ Meteor.canvasMethods = {
                 } else {
                     path.add(event.point);
                 }
-                
             }
         };
-
-        scribble_tool = new paper.Tool();
         scribble_tool.onMouseDown = function onMouseDown(event) {
             path = new paper.Path();
-            path.strokeColor = Session.get('currentColour');
+            path.style = Meteor.canvasMethods.collectStyleSettings();
             path.add(event.point);
         };
         scribble_tool.onMouseDrag = function(event) {
