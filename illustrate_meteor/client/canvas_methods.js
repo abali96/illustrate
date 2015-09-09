@@ -2,6 +2,7 @@ Meteor.canvasMethods = {
     renderCanvas : function() {
         paper.setup('canvas');
         Meteor.canvasMethods.setToolActions();
+        Session.set({'currentColour': 'black'});
     },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
@@ -28,7 +29,8 @@ Meteor.canvasMethods = {
             }
         };
         Mousetrap.bind('esc', function(e) {
-            unmountTool();
+            Meteor.toolMethods.saveAsSVG(path);
+            path = undefined;
         });
 
         scribble_tool = new paper.Tool();
@@ -40,7 +42,10 @@ Meteor.canvasMethods = {
         scribble_tool.onMouseDrag = function(event) {
             path.add(event.point);
         };
-        scribble_tool.onMouseUp = unmountTool;
+        scribble_tool.onMouseUp = function(event) {
+            Meteor.toolMethods.saveAsSVG(path);
+            path = undefined;
+        };
     },
     setCurrentTool : function(tool_type) {
         switch(tool_type) {

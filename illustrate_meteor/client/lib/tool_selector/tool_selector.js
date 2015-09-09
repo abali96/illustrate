@@ -7,6 +7,9 @@ Template.tool_selector.helpers({
 		];
 		return tools;
 	},
+	currentColour : function() {
+		return Session.get('currentColour')
+	}
 });
 
 Template.tool_selector.events({
