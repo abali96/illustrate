@@ -1,3 +1,4 @@
 CommandLineConstants = {
-	NewSession: 'Application'
+	NewSession: 'Application',
+	Context: 'context',
 };

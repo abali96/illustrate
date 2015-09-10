@@ -22,7 +22,7 @@ Template.edit_canvas.onRendered(function (){
 
     $(document).keydown(function(e) {
         if (e.keyCode == 27) { // escape key maps to keycode `27`
-            Meteor.canvasMethods.savePath(path);
+            Session.set(CommandLineConstants.Context, undefined);
         } else if (e.keyCode == 16) {
             Session.set(CanvasConstants.StraightLineModifier, true);
         }

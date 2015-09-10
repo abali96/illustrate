@@ -16,9 +16,13 @@ Meteor.commandLineMethods = {
             "debug": Meteor.commandLineMethods.debug,
         };
         possible_actions = [];
-        command = command.toLowerCase();
+        command = command.toLowerCase().trim().split(' ');
+        if (command[0] === '') {
+            Logs.insert({text: Object.keys(action_map).join(", "), type: "All commands"});
+            return;
+        }
         for (var action in action_map) { // Find all those actions that the user's command could relate to
-            if (action_map.hasOwnProperty(action) && action.startsWith(command)) {
+            if (action_map.hasOwnProperty(action) && action.startsWith(command[0])) {
                 possible_actions.push(action);
             }
         }
@@ -27,7 +31,9 @@ Meteor.commandLineMethods = {
             Logs.insert({text: command_line_value, type: "Unknown Command"});
         } else if (possible_actions.length == 1) {
             Logs.insert({text: command_line_value, type: "Command", resultant_command: possible_actions[0]});
-            action_map[possible_actions[0]]();
+            action_map[possible_actions[0]](command.slice(1)); // Pass in the parameters along with the value
+            console.log(command);
+            Session.set(CommandLineConstants.Context, possible_actions[0]);
         } else {
             type_val = "Possible commands with given input: '" + command_line_value + "'";
             text_val = possible_actions.join(", ");
@@ -56,15 +62,6 @@ Meteor.commandLineMethods = {
             }
         };
         line_tool.activate();
-        $(document).keyup(function(e) {
-            if (e.keyCode == 27) { // escape key maps to keycode `27`
-                path.removeSegment(path._segments.length - 1);
-                console.log(path._segments.length);
-                Meteor.canvasMethods.savePath(path);
-                line_tool.remove();
-                Meteor.commandLineMethods.setLineTool();
-            }
-        });
     },
     setScribbleTool : function() {
         scribble_tool = new paper.Tool();
@@ -82,5 +79,20 @@ Meteor.commandLineMethods = {
         };
         scribble_tool.activate();
     },
+    endLine : function () {
+        // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)
+        Meteor.canvasMethods.savePath(path);
+        line_tool.remove();
+        Meteor.commandLineMethods.setLineTool();
+    },
+    setColour : function(params) {
+        if (params.length !== 1) {
+            Logs.insert({text: "colour <colourname/hexcode including #, rgba(r, g, b, a)>", type: "Usage"});
+        } else {
+            Session.set(ToolModifierConstants.StrokeColour, params[0]);
+        }
+    },
+    setStrokeWidth : function() {
 
+    },
 };

@@ -10,5 +10,11 @@ Template.command_line.events({
 Template.command_line.helpers({
 	'logs' : function() {
 		return Logs.find();
+	},
+	'context' : function() {
+		raw_string = Session.get(CommandLineConstants.Context);
+		if (typeof raw_string !== 'undefined')
+			return raw_string.charAt(0).toUpperCase() + raw_string.slice(1);
+		return "Command";
 	}
 });
