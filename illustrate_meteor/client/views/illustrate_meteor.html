@@ -18,8 +18,6 @@
 				{{name}}: <input type="text" value={{value}}>
 		</form> 
 	{{/each}}
-
-	<p>Hit escape to finalize a line.</p>
 </template>
 
 <template name="canvas_wrapper">
@@ -52,7 +50,8 @@
 		</div>
 		<form id="command_line_form">
 			<div>
-				<p>{{context}}:</p>
+				<!-- <p>{{context}}:</p> -->
+				<p>Command:</p>
 				<input id="command_line" type="text">
 			</div>
 		</form>

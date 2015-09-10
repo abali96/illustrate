@@ -87,7 +87,7 @@ Meteor.commandLineMethods = {
     },
     setColour : function(params) {
         if (params.length !== 1) {
-            Logs.insert({text: "colour <colourname/hexcode including #, rgba(r, g, b, a)>", type: "Usage"});
+            Logs.insert({text: "colour <colourname/hexcode including #/rgba(r, g, b, a)>", type: "Usage"});
         } else {
             Session.set(ToolModifierConstants.StrokeColour, params[0]);
         }
