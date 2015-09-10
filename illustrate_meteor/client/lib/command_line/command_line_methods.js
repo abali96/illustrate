@@ -11,7 +11,7 @@ Meteor.commandLineMethods = {
             "scribble": Meteor.commandLineMethods.setScribbleTool,
             "colour": Meteor.commandLineMethods.setColour,
             "width": Meteor.commandLineMethods.setStrokeWidth,
-            "dash": Meteor.commandLineMethods.setStrokeWidth,
+            "dash": Meteor.commandLineMethods.setStrokeDash,
             "end": Meteor.commandLineMethods.endLine,
             "debug": Meteor.commandLineMethods.debug,
         };
@@ -92,7 +92,19 @@ Meteor.commandLineMethods = {
             Session.set(ToolModifierConstants.StrokeColour, params[0]);
         }
     },
-    setStrokeWidth : function() {
-
+    setStrokeWidth : function(params) {
+        if (params.length !== 1 || isNaN(params[0])) {
+            Logs.insert({text: "width <number>", type: "Usage"});
+        } else {
+            Session.set(ToolModifierConstants.StrokeWidth, Number(params[0]));
+        }
     },
+    setStrokeDash : function(params) {
+        if (params.length !== 2 || isNaN(params[0]) || isNaN(params[1])) {
+            Logs.insert({text: "dash <number> <number>", type: "Usage"});
+        } else {
+            Session.set(ToolModifierConstants.StrokeDashLength, Number(params[0]));
+            Session.set(ToolModifierConstants.StrokeDashGap, Number(params[1]));
+        }
+    }
 };
