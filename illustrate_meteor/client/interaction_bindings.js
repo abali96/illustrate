@@ -1,4 +1,5 @@
 Mousetrap.bind('shift', function(e) {
+	console.log('here');
     Session.set(CanvasConstants.StraightLineModifier, true);
 }, "keydown");
 
