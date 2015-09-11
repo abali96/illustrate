@@ -25,3 +25,5 @@ paper.Path.prototype.cleanLastPoint = function() {
 };
 
 paper.Shape.Circle.prototype.setCenter = false;
+paper.Shape.Rectangle.prototype.setCorner = false;
+paper.Path.prototype.rectangleStartingPoint = undefined;

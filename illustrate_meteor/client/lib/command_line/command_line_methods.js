@@ -16,6 +16,7 @@ Meteor.commandLineMethods = {
             "debug": Meteor.commandLineMethods.debug,
             "close": Meteor.commandLineMethods.closeLine,
             "circle": Meteor.commandLineMethods.setCircleTool,
+            "rectangle": Meteor.commandLineMethods.setRectangleTool,
         };
         non_context_setting_actions = ["close", "colour", "width", "dash", "end"];
         possible_actions = [];
@@ -53,16 +54,16 @@ Meteor.commandLineMethods = {
                 Session.set('start_new', false);
                 path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
             }
-            path.addPoint(Meteor.canvasMethods.calculatePoint(event, path));
+            path.addPoint(Meteor.canvasMethods.calculateStraightLinePoint(event, path));
             console.log(path._segments.length);
         };
         line_tool.onMouseMove = function (event) {
             if (!Session.get('start_new') && typeof path !== 'undefined') {
                 if (path._segments.length > 1) {
                     path.removeSegment(path._segments.length - 1);
-                    path.add(Meteor.canvasMethods.calculatePoint(event, path));
+                    path.add(Meteor.canvasMethods.calculateStraightLinePoint(event, path));
                 } else if (path._segments.length == 1) {
-                    path.add(Meteor.canvasMethods.calculatePoint(event, path));
+                    path.add(Meteor.canvasMethods.calculateStraightLinePoint(event, path));
                 }
             }
         };
@@ -110,6 +111,36 @@ Meteor.commandLineMethods = {
         };
         createNewCircle();
         circle_tool.activate();
+    },
+    setRectangleTool : function() {
+        // Since we can only modify the center position and the size, we have to do some math to make this seem like a simple top left corner to bottom right corner tool.
+        rectangle_tool = new paper.Tool();
+        rectangle_tool.onMouseDown = function (event) {
+            if (typeof rectangle === 'undefined') {
+                rectangle = new paper.Shape.Rectangle({point: event.point, size: new paper.Size(0, 0)});
+                rectangle.style = Meteor.canvasMethods.collectStyleSettings();
+            } else {
+                Meteor.canvasMethods.savePath(rectangle);
+                rectangle = undefined;
+            }
+        };
+        rectangle_tool.onMouseMove = function(event) {
+            function sign(x) {
+                return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
+            }
+            var square_modified_x = event.point.x, // will be modified if we are drawing a square.
+                square_modified_y = event.point.y;
+            if (Session.get(CanvasConstants.StraightLineModifier)) {
+                var x_delta = rectangle.point.x - event.point.x;
+                var y_delta = rectangle.point.y - event.point.y;
+                var min_delta = Math.min(Math.abs(x_delta), Math.abs(y_delta));
+                square_modified_x = rectangle.point.x - sign(x_delta)*Math.abs(min_delta);
+                square_modified_y = rectangle.point.y - sign(y_delta)*Math.abs(min_delta);
+            }
+            rectangle.position = Meteor.canvasMethods.calculateSquarePosition(square_modified_x, square_modified_y, rectangle);
+            rectangle.size = Meteor.canvasMethods.calculateSquareSize(Math.abs(2 * (rectangle.position.x - square_modified_x)), Math.abs(2 * (rectangle.position.y - square_modified_y)));
+        };
+        rectangle_tool.activate();
     },
     endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)

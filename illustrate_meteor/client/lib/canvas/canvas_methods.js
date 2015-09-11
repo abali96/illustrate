@@ -8,7 +8,7 @@ Meteor.canvasMethods = {
         Session.setDefault(ToolModifierConstants.StrokeDashGap, 0);
         Session.setDefault(ToolModifierConstants.StrokeDashGap, false);
     },
-    calculatePoint : function(event, path) {
+    calculateStraightLinePoint : function(event, path) {
         console.log(Session.get(CanvasConstants.StraightLineModifier), path._segments.length);
         if (Session.get(CanvasConstants.StraightLineModifier) && path._segments.length) {
             var prev_x = path._segments[path._segments.length - 1]._point._x,
@@ -21,6 +21,18 @@ Meteor.canvasMethods = {
         } else {
             return [event.point.x, event.point.y];
         }
+    },
+    calculateSquareSize : function(default_x, default_y) {
+        if (Session.get(CanvasConstants.StraightLineModifier)) {
+            var min_value = Math.min(default_x, default_y);
+            return new paper.Size(min_value, min_value);
+        } else {
+            return new paper.Size(default_x, default_y);
+        }
+    },
+    calculateSquarePosition : function(x, y, rectangle){
+        return new paper.Point((rectangle.point.x + x)/2, (rectangle.point.y + y)/2);
+        
     },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
