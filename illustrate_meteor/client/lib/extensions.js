@@ -23,3 +23,5 @@ paper.Path.prototype.cleanLastPoint = function() {
         this.removeSegment(this._segments.length - 1);
     }
 };
+
+paper.Shape.Circle.prototype.setCenter = false;

@@ -15,6 +15,7 @@ Meteor.commandLineMethods = {
             "end": Meteor.commandLineMethods.endLine,
             "debug": Meteor.commandLineMethods.debug,
             "close": Meteor.commandLineMethods.closeLine,
+            "circle": Meteor.commandLineMethods.setCircleTool,
         };
         non_context_setting_actions = ["close", "colour", "width", "dash", "end"];
         possible_actions = [];
@@ -83,6 +84,33 @@ Meteor.commandLineMethods = {
         };
         scribble_tool.activate();
     },
+    setCircleTool : function() {
+        circle_tool = new paper.Tool();
+        function createNewCircle() {
+            circle = new paper.Shape.Circle(new paper.Point(event.point), 1); // create a floating tool
+            circle.style = Meteor.canvasMethods.collectStyleSettings();
+        }
+        circle_tool.onMouseDown = function (event) {
+            if (!circle.setCenter) {
+                circle.position = new paper.Point(event.point);
+                circle.setCenter = true;
+            } else {
+                Meteor.canvasMethods.savePath(circle);
+                createNewCircle();
+            }
+        };
+        circle_tool.onMouseMove = function(event) {
+            if (!circle.setCenter) {
+                circle.position = new paper.Point(event.point);
+            } else {
+                dist_to_point = Math.sqrt(Math.pow(event.point.x - circle.position._x, 2) + Math.pow(event.point.y - circle.position._y, 2));
+                circle.radius = dist_to_point;
+            }
+            
+        };
+        createNewCircle();
+        circle_tool.activate();
+    },
     endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)
         if (!(close_break_signal === true)) // will be an empty array otherwise.
@@ -113,7 +141,7 @@ Meteor.commandLineMethods = {
             Session.set(ToolModifierConstants.StrokeDashGap, Number(params[1]));
         }
     },
-    closeLine : function(params) {
+    closeLine : function() {
         var allowed_arr = ["line", "scribble"];
         path.cleanLastPoint();
         if (_.contains(allowed_arr, Session.get(CommandLineConstants.Context))) {
@@ -122,5 +150,5 @@ Meteor.commandLineMethods = {
         } else {
             Logs.insert({text: allowed_arr.join(", "), type: "Can only be used within commands"});
         }
-    }
+    },
 };
