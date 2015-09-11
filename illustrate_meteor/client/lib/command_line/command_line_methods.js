@@ -32,7 +32,8 @@ Meteor.commandLineMethods = {
             Logs.insert({text: command_line_value, type: "Unknown Command"});
         } else if (possible_actions.length == 1) {
             Logs.insert({text: command_line_value, type: "Command", resultant_command: possible_actions[0]});
-            action_map[possible_actions[0]](command.slice(1)); // Pass in the parameters along with the value
+            params = command.length > 1 ? command.slice(1) : null;
+            action_map[possible_actions[0]](params); // Pass in the parameters along with the value
             console.log(command);
             if (!_.contains(non_context_setting_actions, possible_actions[0])) {
                 Session.set(CommandLineConstants.Context, possible_actions[0]);
@@ -84,12 +85,8 @@ Meteor.commandLineMethods = {
     },
     endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)
-        if (!_.contains(path.clickPoints, path._segments[path._segments.length - 1].getPoint()) && !(close_break_signal === true)) { // used to filter out last point added due to mouse move
-            console.log("deleting last point in end line");
-            console.log(path.clickPoints);
-            console.log(path._segments);
-            path.removeSegment(path._segments.length - 1);
-        }
+        if (!(close_break_signal === true)) // will be an empty array otherwise.
+            path.cleanLastPoint();
         Meteor.canvasMethods.savePath(path);
         line_tool.remove();
         Meteor.commandLineMethods.setLineTool();
@@ -102,14 +99,14 @@ Meteor.commandLineMethods = {
         }
     },
     setStrokeWidth : function(params) {
-        if (params.length !== 1 || isNaN(params[0])) {
+        if (!params || params.length !== 1 || isNaN(params[0])) {
             Logs.insert({text: "width <number>", type: "Usage"});
         } else {
             Session.set(ToolModifierConstants.StrokeWidth, Number(params[0]));
         }
     },
     setStrokeDash : function(params) {
-        if (params.length !== 2 || isNaN(params[0]) || isNaN(params[1])) {
+        if (!params || params.length !== 2 || isNaN(params[0]) || isNaN(params[1])) {
             Logs.insert({text: "dash <number> <number>", type: "Usage"});
         } else {
             Session.set(ToolModifierConstants.StrokeDashLength, Number(params[0]));
@@ -118,12 +115,8 @@ Meteor.commandLineMethods = {
     },
     closeLine : function(params) {
         var allowed_arr = ["line", "scribble"];
-        if (!_.contains(path.clickPoints, path._segments[path._segments.length - 1])) { // used to filter out last point added due to mouse move
-            path.removeSegment(path._segments.length - 1);
-            console.log("deleting last point in close line");
-        }
+        path.cleanLastPoint();
         if (_.contains(allowed_arr, Session.get(CommandLineConstants.Context))) {
-            console.log('adding closing point');
             path.addPoint([path._segments[0]._point._x, path._segments[0]._point._y]);
             Meteor.commandLineMethods.endLine(true);
         } else {
