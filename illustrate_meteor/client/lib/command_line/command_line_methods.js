@@ -28,7 +28,6 @@ Meteor.commandLineMethods = {
                 possible_actions.push(action);
             }
         }
-        console.log(possible_actions);
         if (possible_actions.length === 0) {
             Logs.insert({text: command_line_value, type: "Unknown Command"});
         } else if (possible_actions.length == 1) {
@@ -52,7 +51,7 @@ Meteor.commandLineMethods = {
                 Session.set('start_new', false);
                 path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
             }
-            path.add(Meteor.canvasMethods.calculatePoint(event, path));
+            path.addPoint(Meteor.canvasMethods.calculatePoint(event, path));
             console.log(path._segments.length);
         };
         line_tool.onMouseMove = function (event) {
@@ -83,8 +82,14 @@ Meteor.commandLineMethods = {
         };
         scribble_tool.activate();
     },
-    endLine : function () {
+    endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)
+        if (!_.contains(path.clickPoints, path._segments[path._segments.length - 1].getPoint()) && !(close_break_signal === true)) { // used to filter out last point added due to mouse move
+            console.log("deleting last point in end line");
+            console.log(path.clickPoints);
+            console.log(path._segments);
+            path.removeSegment(path._segments.length - 1);
+        }
         Meteor.canvasMethods.savePath(path);
         line_tool.remove();
         Meteor.commandLineMethods.setLineTool();
@@ -113,9 +118,14 @@ Meteor.commandLineMethods = {
     },
     closeLine : function(params) {
         var allowed_arr = ["line", "scribble"];
+        if (!_.contains(path.clickPoints, path._segments[path._segments.length - 1])) { // used to filter out last point added due to mouse move
+            path.removeSegment(path._segments.length - 1);
+            console.log("deleting last point in close line");
+        }
         if (_.contains(allowed_arr, Session.get(CommandLineConstants.Context))) {
-            path.add(path._segments[0]);
-            Meteor.commandLineMethods.endLine();
+            console.log('adding closing point');
+            path.addPoint([path._segments[0]._point._x, path._segments[0]._point._y]);
+            Meteor.commandLineMethods.endLine(true);
         } else {
             Logs.insert({text: allowed_arr.join(", "), type: "Can only be used within commands"});
         }
