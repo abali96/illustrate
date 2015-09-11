@@ -45,6 +45,7 @@ Meteor.canvasMethods = {
             dashArray: [Session.get(ToolModifierConstants.StrokeDashLength), Session.get(ToolModifierConstants.StrokeDashGap)],
             strokeWidth: Session.get(ToolModifierConstants.StrokeWidth),
             strokeColor: Session.get(ToolModifierConstants.StrokeColour),
+            fillColor: Session.get(ToolModifierConstants.FillColour),
         };
         return settings_map;
     },

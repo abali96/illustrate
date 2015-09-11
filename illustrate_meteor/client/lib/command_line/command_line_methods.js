@@ -9,7 +9,8 @@ Meteor.commandLineMethods = {
         action_map = {
             "line": Meteor.commandLineMethods.setLineTool,
             "scribble": Meteor.commandLineMethods.setScribbleTool,
-            "colour": Meteor.commandLineMethods.setColour,
+            "strokecolour": Meteor.commandLineMethods.setStrokeColour,
+            "fillcolour": Meteor.commandLineMethods.setFillColour,
             "width": Meteor.commandLineMethods.setStrokeWidth,
             "dash": Meteor.commandLineMethods.setStrokeDash,
             "end": Meteor.commandLineMethods.endLine,
@@ -150,11 +151,18 @@ Meteor.commandLineMethods = {
         line_tool.remove();
         Meteor.commandLineMethods.setLineTool();
     },
-    setColour : function(params) {
-        if (params.length !== 1) {
+    setStrokeColour : function(params) {
+        if (!params || params.length !== 1) {
             Logs.insert({text: "colour <colourname/hexcode including #/rgba(r, g, b, a)>", type: "Usage"});
         } else {
             Session.set(ToolModifierConstants.StrokeColour, params[0]);
+        }
+    },
+    setFillColour : function(params) {
+        if (!params || params.length !== 1) {
+            Logs.insert({text: "colour <colourname/hexcode including #/rgba(r, g, b, a)>", type: "Usage"});
+        } else {
+            Session.set(ToolModifierConstants.FillColour, params[0]);
         }
     },
     setStrokeWidth : function(params) {

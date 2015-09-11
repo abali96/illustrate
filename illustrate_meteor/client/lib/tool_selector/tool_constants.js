@@ -6,6 +6,7 @@ ToolTypeConstants = {
 
 ToolModifierConstants = {
 	StrokeColour: "strokeColour",
+	FillColour: "fillColour",
 	StrokeWidth: "strokeWidth",
 	StrokeDashLength: "strokeDashLength",
 	StrokeDashGap: "strokeDashGap",

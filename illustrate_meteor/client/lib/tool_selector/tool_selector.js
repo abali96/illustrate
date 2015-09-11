@@ -8,7 +8,8 @@ Template.tool_selector.helpers({
 	},
 	tool_modifiers : function() {
 		modifiers = [
-			{name: "Colour", id: ToolModifierConstants.StrokeColour, button: false, value: Session.get(ToolModifierConstants.StrokeColour)},
+			{name: "Stroke Colour", id: ToolModifierConstants.StrokeColour, value: Session.get(ToolModifierConstants.StrokeColour)},
+			{name: "Fill Colour", id: ToolModifierConstants.FillColour, value: Session.get(ToolModifierConstants.FillColour)},
 			{name: "Width (pt)", id: ToolModifierConstants.StrokeWidth, value: Session.get(ToolModifierConstants.StrokeWidth)},
 			{name: "Dash Length (pt)", id: ToolModifierConstants.StrokeDashLength, value: Session.get(ToolModifierConstants.StrokeDashLength)},
 			{name: "Dash Gap (pt)", id: ToolModifierConstants.StrokeDashGap, value: Session.get(ToolModifierConstants.StrokeDashGap)},
