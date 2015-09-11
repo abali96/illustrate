@@ -14,7 +14,9 @@ Meteor.commandLineMethods = {
             "dash": Meteor.commandLineMethods.setStrokeDash,
             "end": Meteor.commandLineMethods.endLine,
             "debug": Meteor.commandLineMethods.debug,
+            "close": Meteor.commandLineMethods.closeLine,
         };
+        non_context_setting_actions = ["close", "colour", "width", "dash", "end"];
         possible_actions = [];
         command = command.toLowerCase().trim().split(' ');
         if (command[0] === '') {
@@ -33,7 +35,9 @@ Meteor.commandLineMethods = {
             Logs.insert({text: command_line_value, type: "Command", resultant_command: possible_actions[0]});
             action_map[possible_actions[0]](command.slice(1)); // Pass in the parameters along with the value
             console.log(command);
-            Session.set(CommandLineConstants.Context, possible_actions[0]);
+            if (!_.contains(non_context_setting_actions, possible_actions[0])) {
+                Session.set(CommandLineConstants.Context, possible_actions[0]);
+            }
         } else {
             type_val = "Possible commands with given input: '" + command_line_value + "'";
             text_val = possible_actions.join(", ");
@@ -105,6 +109,15 @@ Meteor.commandLineMethods = {
         } else {
             Session.set(ToolModifierConstants.StrokeDashLength, Number(params[0]));
             Session.set(ToolModifierConstants.StrokeDashGap, Number(params[1]));
+        }
+    },
+    closeLine : function(params) {
+        var allowed_arr = ["line", "scribble"];
+        if (_.contains(allowed_arr, Session.get(CommandLineConstants.Context))) {
+            path.add(path._segments[0]);
+            Meteor.commandLineMethods.endLine();
+        } else {
+            Logs.insert({text: allowed_arr.join(", "), type: "Can only be used within commands"});
         }
     }
 };
