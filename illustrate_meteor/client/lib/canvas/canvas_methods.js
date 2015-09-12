@@ -51,6 +51,7 @@ Meteor.canvasMethods = {
     },
     savePath : function(path) {
         var path_svg = path.exportSVG({asString:true});
+        Meteor.canvasMethods.eraseCanvas();
         SVGs.insert({data : path_svg});
     },
     setCurrentTool : function(tool_type) {

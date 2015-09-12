@@ -18,6 +18,7 @@ Meteor.commandLineMethods = {
             "close": Meteor.commandLineMethods.closeLine,
             "circle": Meteor.commandLineMethods.setCircleTool,
             "rectangle": Meteor.commandLineMethods.setRectangleTool,
+            "polygon": Meteor.commandLineMethods.setPolygonTool,
         };
         non_context_setting_actions = ["close", "colour", "width", "dash", "end"];
         possible_actions = [];
@@ -142,6 +143,33 @@ Meteor.commandLineMethods = {
             rectangle.size = Meteor.canvasMethods.calculateSquareSize(Math.abs(2 * (rectangle.position.x - square_modified_x)), Math.abs(2 * (rectangle.position.y - square_modified_y)));
         };
         rectangle_tool.activate();
+    },
+    setPolygonTool : function(params) {
+        // Since we can only modify the center position and the size, we have to do some math to make this seem like a simple top left corner to bottom right corner tool.
+        if (!params || isNaN(params[0])) {
+            Logs.insert({text: "polygon <number of sides>", type:"Usage"});
+        } else {
+            polygon_tool = new paper.Tool();
+            polygon_tool.onMouseDown = function (event) {
+                if (typeof polygon === 'undefined') {
+                    polygon = new paper.Path.RegularPolygon({center: new paper.Point(event.point), sides: params[0], radius: CommandLineConstants.MinPolygonRadius});
+                    polygon.style = Meteor.canvasMethods.collectStyleSettings();
+                } else {
+                    Meteor.canvasMethods.savePath(polygon);
+                    polygon = undefined;
+                }
+            };
+            polygon_tool.onMouseMove = function(event) {
+                // We want this to scale the shape. We already know that the distance of one point in the polygon to the center will be constant.
+                // Therefore we scale by a factor of dist_of_mouse_to_center/dist_of_one_point_to_center.
+                console.log(polygon);
+                var point_on_poly = [polygon._segments[0]._point.x, polygon._segments[0]._point.y];
+                var dist_of_point_to_center = Math.pow(point_on_poly[0] - polygon.position.x, 2) + Math.pow(point_on_poly[1] - polygon.position.y, 2);
+                var dist_of_mouse_to_center = Math.pow(polygon.position.x - event.point.x, 2) + Math.pow(polygon.position.y - event.point.y, 2);
+                polygon.scale(Math.sqrt(dist_of_mouse_to_center/dist_of_point_to_center));
+            };
+            polygon_tool.activate();
+        }
     },
     endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)
