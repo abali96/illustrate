@@ -39,7 +39,10 @@ Template.view_canvas.onRendered(function() {
     svg_cursor = SVGs.find();
     svg_cursor.observe({
         added: function (doc) {
-            Meteor.canvasMethods.injectSVG(doc.data);
+            Meteor.canvasMethods.injectSVG(doc.svg_str, doc._id);
         },
+        removed: function(doc, atIndex) {
+            Meteor.canvasMethods.removeSVG(doc);
+        }
     });
 });

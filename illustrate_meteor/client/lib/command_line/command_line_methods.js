@@ -19,6 +19,7 @@ Meteor.commandLineMethods = {
             "circle": Meteor.commandLineMethods.setCircleTool,
             "rectangle": Meteor.commandLineMethods.setRectangleTool,
             "polygon": Meteor.commandLineMethods.setPolygonTool,
+            "delete": Meteor.commandLineMethods.setDeleteTool,
         };
         non_context_setting_actions = ["close", "colour", "width", "dash", "end"];
         possible_actions = [];
@@ -36,7 +37,7 @@ Meteor.commandLineMethods = {
             Logs.insert({text: command_line_value, type: "Unknown Command"});
         } else if (possible_actions.length == 1) {
             Logs.insert({text: command_line_value, type: "Command", resultant_command: possible_actions[0]});
-            Meteor.canvasMethods.eraseCanvas();
+            // Meteor.canvasMethods.eraseCanvas();
             params = command.length > 1 ? command.slice(1) : null;
             action_map[possible_actions[0]](params); // Pass in the parameters along with the value
             if (!_.contains(non_context_setting_actions, possible_actions[0])) {
@@ -171,6 +172,23 @@ Meteor.commandLineMethods = {
             };
             polygon_tool.activate();
         }
+    },
+    setDeleteTool : function() {
+        selectTool = new paper.Tool();
+        selectTool.onMouseMove = function(event) {
+            SVGs.find().forEach( function(doc) {
+            });
+        };
+        selectTool.onMouseDown = function(event) {
+            SVGs.find().forEach(function(doc) {
+                var path = paper.project.importSVG(doc.svg_str); // could probably add these to a selection paper js layer with display type none.
+                paper.project._activeLayer.removeChildren(paper.project.length - 1);
+                if (path.hitTest(event.point)) {
+                    SVGs.remove({_id: doc._id});
+                }
+            });
+        };
+        selectTool.activate();
     },
     endLine : function(close_break_signal) {
         // Will be implemented after context switching exists (you'd be able to tell which tool to reactivate.)

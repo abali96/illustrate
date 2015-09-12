@@ -36,8 +36,8 @@ Meteor.canvasMethods = {
     },
     renderSVG : function() {
         SVGs.find().forEach(function (doc) {
-            if (doc.data != {})
-                Meteor.canvasMethods.injectSVG(doc.data);
+            if (doc.svg_str != {})
+                Meteor.canvasMethods.injectSVG(doc.svg_str);
         });
     },
     collectStyleSettings : function() {
@@ -50,9 +50,9 @@ Meteor.canvasMethods = {
         return settings_map;
     },
     savePath : function(path) {
-        var path_svg = path.exportSVG({asString:true});
+        var svg_str = path.exportSVG({asString:true});
+        SVGs.insert({svg_str : svg_str});
         Meteor.canvasMethods.eraseCanvas();
-        SVGs.insert({data : path_svg});
     },
     setCurrentTool : function(tool_type) {
         switch(tool_type) {
@@ -71,11 +71,15 @@ Meteor.canvasMethods = {
         if (paper.project._activeLayer)
             paper.project._activeLayer.removeChildren();
     },
-    injectSVG : function(path) {
+    injectSVG : function(path, id) {
         var svg = $('svg')[0]; // Get svg element from DOM.
         var container_div = document.createElementNS("http://www.w3.org/2000/svg", 'path');
         container_div.innerHTML = path;
         var elements = container_div.childNodes;
+        $(elements[0]).attr('id', id); // Bad idea for security, but for now, set the id of the polyline to be the id in the database.
         svg.appendChild(elements[0]);
     },
+    removeSVG : function(doc) {
+        $('#' + doc._id).remove();
+    }
 };
