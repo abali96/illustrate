@@ -36,9 +36,9 @@ Meteor.commandLineMethods = {
             Logs.insert({text: command_line_value, type: "Unknown Command"});
         } else if (possible_actions.length == 1) {
             Logs.insert({text: command_line_value, type: "Command", resultant_command: possible_actions[0]});
+            Meteor.canvasMethods.eraseCanvas();
             params = command.length > 1 ? command.slice(1) : null;
             action_map[possible_actions[0]](params); // Pass in the parameters along with the value
-            console.log(command);
             if (!_.contains(non_context_setting_actions, possible_actions[0])) {
                 Session.set(CommandLineConstants.Context, possible_actions[0]);
             }
@@ -50,17 +50,16 @@ Meteor.commandLineMethods = {
     },
     setLineTool : function() {
         line_tool = new paper.Tool();
-        Session.set('start_new', true);
         line_tool.onMouseDown = function (event) {
-            if (Session.get('start_new')) {
-                Session.set('start_new', false);
+            if (!line_tool.clickCount) {
+                line_tool.clickCount += 1;
                 path = new paper.Path({style: Meteor.canvasMethods.collectStyleSettings()});
             }
             path.addPoint(Meteor.canvasMethods.calculateStraightLinePoint(event, path));
             console.log(path._segments.length);
         };
         line_tool.onMouseMove = function (event) {
-            if (!Session.get('start_new') && typeof path !== 'undefined') {
+            if (line_tool.clickCount) {
                 if (path._segments.length > 1) {
                     path.removeSegment(path._segments.length - 1);
                     path.add(Meteor.canvasMethods.calculateStraightLinePoint(event, path));
@@ -118,12 +117,13 @@ Meteor.commandLineMethods = {
         // Since we can only modify the center position and the size, we have to do some math to make this seem like a simple top left corner to bottom right corner tool.
         rectangle_tool = new paper.Tool();
         rectangle_tool.onMouseDown = function (event) {
-            if (typeof rectangle === 'undefined') {
+            if (!rectangle_tool.clickCount) {
+                rectangle_tool.clickCount += 1;
                 rectangle = new paper.Shape.Rectangle({point: event.point, size: new paper.Size(0, 0)});
                 rectangle.style = Meteor.canvasMethods.collectStyleSettings();
             } else {
                 Meteor.canvasMethods.savePath(rectangle);
-                rectangle = undefined;
+                rectangle_tool.clickCount = 0;
             }
         };
         rectangle_tool.onMouseMove = function(event) {
@@ -151,12 +151,13 @@ Meteor.commandLineMethods = {
         } else {
             polygon_tool = new paper.Tool();
             polygon_tool.onMouseDown = function (event) {
-                if (typeof polygon === 'undefined') {
+                if (!polygon_tool.clickCount) {
+                    polygon_tool.clickCount += 1;
                     polygon = new paper.Path.RegularPolygon({center: new paper.Point(event.point), sides: params[0], radius: CommandLineConstants.MinPolygonRadius});
                     polygon.style = Meteor.canvasMethods.collectStyleSettings();
                 } else {
                     Meteor.canvasMethods.savePath(polygon);
-                    polygon = undefined;
+                    polygon_tool.clickCount = 0;
                 }
             };
             polygon_tool.onMouseMove = function(event) {

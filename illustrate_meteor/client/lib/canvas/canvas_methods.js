@@ -68,7 +68,8 @@ Meteor.canvasMethods = {
         }
     },
     eraseCanvas : function() {
-        paper.project._activeLayer.removeChildren();
+        if (paper.project._activeLayer)
+            paper.project._activeLayer.removeChildren();
     },
     injectSVG : function(path) {
         var svg = $('svg')[0]; // Get svg element from DOM.
